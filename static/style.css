@@ -1,0 +1,49 @@
+.container {
+	display: flex;
+	flex-wrap: wrap;
+	justify-content: center;
+}
+
+.top {
+	margin-top: 30vh;
+}
+
+.validation-info{
+	margin: 0;
+	height: .8rem;
+	font-size: .8rem;
+}
+
+.input-element{
+	min-width: 100px;
+	box-sizing: border-box;
+	padding: 0;
+	border: 1px solid #1a1b1c;
+	height: 1.6rem;
+	font-size: 1.2rem;
+}
+
+.valid {
+	color: green;
+}
+
+.invalid {
+	color: red;
+}
+
+.info {
+	width: 320px;
+	padding: 12px;
+	transition: background-color 0.5s;
+	transition: border 0.5s;
+}
+
+.info-showed {
+	background-color: #ccccef;
+	border: 1px solid #121289;
+}
+
+.info-hidden {	
+	background-color: transparent;
+	border: 1px solid transparent;
+}

@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Legal Check</title>
+    <link rel="stylesheet" type="text/css" href="static/style.css">
+</head>
+<body>
+    {% raw %}
+    <div id="app">
+      <div class="container top">
+        <div>
+          <input class="input-element" type="text" name="identifier" v-model="identifier">
+          <p class='validation-info' v-if="identifier.length" v-bind:class="[identifierType ? 'valid' : 'invalid']">{{ validationMessage }}</p>
+        </div>
+        <button class="input-element" v-on:click="checkLegal">Check</button>
+      </div>
+      <div class="container">
+        <p class="info" v-bind:class="[message ? 'info-showed' : 'info-hidden']">{{ message }}</p>
+      </div>
+      
+    </div>
+    {% endraw %}
+    <script src="https://cdn.jsdelivr.net/npm/vue"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script src="static/validators.js"></script>
+    <script>
+
+        var app = new Vue({
+          el: '#app',
+          data: {
+            identifier: '',
+            validationMessage: 'Invalid identifier',
+            identifierType: null,
+            message: ''
+          },
+          watch: {
+            identifier: 'inputValidation'
+          },
+          methods: {
+            inputValidation() {
+                if (checkInn(this.identifier)) {
+                  this.validationMessage = 'It\'s valid INN.';
+                  this.identifierType = 'INN';
+                }
+                else if (checkOgrn(this.identifier)) {
+                  this.validationMessage = 'It\'s valid OGRN.';
+                  this.identifierType = 'OGRN';                  
+                }
+                else if (checkOgrnIp(this.identifier)) {
+                  this.validationMessage = 'It\'s valid OGRNIP.';
+                  this.identifierType = 'OGRNIP';                  
+                }
+                else {
+                  this.validationMessage = 'Invalid identifier';
+                  this.identifierType = null;
+                }
+            },
+            checkLegal() {
+              const {identifier, identifierType, validationMessage} = this;
+              if (!identifierType){
+                this.say(validationMessage);
+                return
+              }
+              axios
+              .post('/legal/', {identifier})
+              .then(response => response.data)
+              .then((data) => {
+                const not = data.is_exists ? '' : 'n\'t';
+                console.log('not:');
+                console.log(not);
+                console.log(data.is_exists);
+                this.say(`Legal entity with ${identifierType}=${identifier} is${not} exist`);
+              });
+            },
+            say(msg) {
+              this.message = msg;
+            }
+          }
+        })
+    </script>
+</body>
+</html>

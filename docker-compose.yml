@@ -1,0 +1,19 @@
+version: '3.3'
+services:
+  redis:
+    image: redis
+    ports:
+      - 6379:6379
+    env_file:
+    - ./.env
+  web:
+    build: .
+    command: gunicorn --bind 0.0.0.0:5000 app:create_application()
+    ports:
+    - 5000:5000
+    env_file:
+      - ./.env
+#    volumes:
+#    - .:/usr/src/app/
+    depends_on:
+      - redis
