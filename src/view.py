@@ -1,16 +1,12 @@
 import datetime
-import logging
 
+from flask import current_app
 from flask_restplus import Namespace, Resource, fields
 
 from src.redis_client import redis_client
 from src.storage import LegalEntityStorage, IdentifierNotFound
 from src.rmsp_fetcher import fetch_from_rmsp
 
-# RMSP_FETCH_TTL = 5 * 60
-RMSP_FETCH_TTL = 0
-
-logger = logging.getLogger(__name__)
 
 api = Namespace('legal')
 
@@ -44,12 +40,11 @@ class Legal(Resource):
         now = datetime.datetime.utcnow().timestamp()
         try:
             entity_info = self.legal_entities.get(identifier)
-            if now - entity_info['last_update'] > RMSP_FETCH_TTL:
+            if now - entity_info['last_update'] > current_app.config['RMSP_FETCH_TTL']:
                 raise ValueError
             is_exists = entity_info['is_exists']
         except (IdentifierNotFound, ValueError):
             identifier_map = fetch_from_rmsp(identifier)
-            logger.error(f'{identifier_map}')
             if identifier_map is None:
                 self.legal_entities.save(identifier, {'last_update': now, 'is_exists': False})
                 is_exists = False
